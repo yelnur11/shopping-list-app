@@ -1,23 +1,26 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import { Route, Routes } from 'react-router-dom';
+import Home from './routes/Home';
+import ListDetails from './routes/ListDetails';
 
 function App() {
+  const [shoppingLists, setShoppingLists] = useState([]);
+  const [archivedLists, setArchivedLists] = useState([]); 
+  // eslint-disable-next-line no-unused-vars
+  const [userRole, setUserRole] = useState("owner");
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Routes>
+        <Route 
+          path="/" 
+          element={<Home shoppingLists={shoppingLists} archivedLists={archivedLists} setShoppingLists={setShoppingLists} />} 
+        />
+        <Route 
+          path="/list/:id" 
+          element={<ListDetails shoppingLists={shoppingLists} setShoppingLists={setShoppingLists} archivedLists={archivedLists} setArchivedLists={setArchivedLists} userRole={userRole} />} 
+        />
+      </Routes>
     </div>
   );
 }

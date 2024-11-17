@@ -1,21 +1,11 @@
 import React, { useState } from 'react';
+import DeleteConfirmationDialog from './DeleteConfirmationDialog';
 
 function ListOwner({ list, onUpdateList, onDeleteList, onArchiveList }) {
-  const [newItemName, setNewItemName] = useState('');
   const [isEditingName, setIsEditingName] = useState(false);
-  const [editedListName, setEditedListName] = useState(list.name);
+  const [editedListName, setEditedListName] = useState(list.name || "");
   const [filter, setFilter] = useState('all');
-  const [newMemberEmail, setNewMemberEmail] = useState('');
-
-  const handleAddItem = () => {
-    if (newItemName.trim() === '') return;
-    const updatedList = {
-      ...list,
-      items: [...(list.items || []), { id: Date.now().toString(), name: newItemName, completed: false }],
-    };
-    onUpdateList(updatedList);
-    setNewItemName('');
-  };
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const handleRemoveItem = (itemId) => {
     const updatedList = {
@@ -54,23 +44,17 @@ function ListOwner({ list, onUpdateList, onDeleteList, onArchiveList }) {
     return true;
   });
 
-  const handleAddMember = () => {
-    if (!newMemberEmail || (list.members || []).includes(newMemberEmail)) return;
-
-    const updatedList = {
-      ...list,
-      members: [...(list.members || []), newMemberEmail],
-    };
-    onUpdateList(updatedList);
-    setNewMemberEmail('');
+  const handleOpenDeleteDialog = () => {
+    setShowDeleteDialog(true);
   };
 
-  const handleRemoveMember = (memberEmail) => {
-    const updatedList = {
-      ...list,
-      members: (list.members || []).filter((email) => email !== memberEmail),
-    };
-    onUpdateList(updatedList);
+  const handleCloseDeleteDialog = () => {
+    setShowDeleteDialog(false);
+  };
+
+  const handleConfirmDelete = () => {
+    onDeleteList();
+    setShowDeleteDialog(false);
   };
 
   return (
@@ -94,7 +78,7 @@ function ListOwner({ list, onUpdateList, onDeleteList, onArchiveList }) {
       )}
 
       <div>
-        <button onClick={onDeleteList} className="icon-button">
+        <button onClick={handleOpenDeleteDialog} className="icon-button">
           <i className="fas fa-trash-alt"></i>
         </button>
         <button onClick={onArchiveList} className="icon-button">
@@ -128,7 +112,7 @@ function ListOwner({ list, onUpdateList, onDeleteList, onArchiveList }) {
           <li key={item.id}>
             <input
               type="checkbox"
-              checked={item.completed}
+              checked={!!item.completed}
               onChange={() => handleToggleItemCompletion(item.id)}
             />
             {item.name}
@@ -139,40 +123,12 @@ function ListOwner({ list, onUpdateList, onDeleteList, onArchiveList }) {
         ))}
       </ul>
 
-      <div className="input-container">
-        <input
-          type="text"
-          value={newItemName}
-          onChange={(e) => setNewItemName(e.target.value)}
-          placeholder="New item name"
+      {showDeleteDialog && (
+        <DeleteConfirmationDialog
+          onClose={handleCloseDeleteDialog}
+          onConfirm={handleConfirmDelete}
         />
-        <button onClick={handleAddItem} className="add-item">
-          <i className="fas fa-plus"></i>
-        </button>
-      </div>
-
-      {/* Managing Members */}
-      <h3>Members</h3>
-      <ul>
-        {(list.members || []).map((member) => (
-          <li key={member}>
-            {member}
-            <button onClick={() => handleRemoveMember(member)}>Remove</button>
-          </li>
-        ))}
-      </ul>
-
-      <div className="input-container">
-        <input
-          type="email"
-          placeholder="Add member by email"
-          value={newMemberEmail}
-          onChange={(e) => setNewMemberEmail(e.target.value)}
-        />
-        <button onClick={handleAddMember} className="add-item">
-          <i className="fas fa-user-plus"></i>
-        </button>
-      </div>
+      )}
     </div>
   );
 }

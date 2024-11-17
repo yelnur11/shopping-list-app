@@ -1,26 +1,39 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ShoppingListOverview from '../components/ShoppingListOverview';
+import AddShoppingListModal from '../components/AddShoppingListModal';
+import DeleteConfirmationDialog from '../components/DeleteConfirmationDialog';
 
 function Home({ shoppingLists, archivedLists, setShoppingLists }) {
   const [showArchived, setShowArchived] = useState(false);
+  const [isAddModalOpen, setAddModalOpen] = useState(false);
+  const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteItemId, setDeleteItemId] = useState(null);
   const navigate = useNavigate();
 
   const handleListSelect = (list) => {
     navigate(`/list/${list.id}`);
   };
 
-  const handleAddNewList = () => {
-    const newList = {
-      id: Date.now().toString(),
-      name: `New List ${shoppingLists.length + 1}`,
-      items: [],
-    };
-    setShoppingLists([...shoppingLists, newList]);
+  const handleAddNewList = (newList) => {
+    const updatedList = { ...newList, items: [] };
+    setShoppingLists([...shoppingLists, updatedList]);
+    setAddModalOpen(false);
+    navigate(`/list/${updatedList.id}`); 
   };
 
   const toggleArchivedView = () => {
     setShowArchived(!showArchived);
+  };
+
+  const handleDeleteList = (id) => {
+    setDeleteDialogOpen(true);
+    setDeleteItemId(id);
+  };
+
+  const confirmDeleteList = () => {
+    setShoppingLists(shoppingLists.filter((list) => list.id !== deleteItemId));
+    setDeleteDialogOpen(false);
   };
 
   return (
@@ -39,6 +52,7 @@ function Home({ shoppingLists, archivedLists, setShoppingLists }) {
         <ShoppingListOverview 
           lists={showArchived ? archivedLists : shoppingLists} 
           onListSelect={handleListSelect} 
+          onDelete={handleDeleteList} 
         />
       </div>
 
@@ -46,10 +60,24 @@ function Home({ shoppingLists, archivedLists, setShoppingLists }) {
         <button onClick={toggleArchivedView} className="icon-button">
           <i className="fas fa-box-archive"></i>
         </button>
-        <button onClick={handleAddNewList} className="icon-button add-button">
+        <button onClick={() => setAddModalOpen(true)} className="icon-button add-button">
           <i className="fas fa-plus-circle"></i>
         </button>
       </footer>
+
+      {isAddModalOpen && (
+        <AddShoppingListModal 
+          onClose={() => setAddModalOpen(false)} 
+          onAdd={handleAddNewList} 
+        />
+      )}
+
+      {isDeleteDialogOpen && (
+        <DeleteConfirmationDialog 
+          onClose={() => setDeleteDialogOpen(false)} 
+          onConfirm={confirmDeleteList} 
+        />
+      )}
     </div>
   );
 }

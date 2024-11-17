@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
-import Home from './routes/Home';
-import ListDetails from './routes/ListDetails';
+import Home from './routes/Home'; 
+import ListDetails from './routes/ListDetails'; 
+import './App.css';
 
 function App() {
   const [shoppingLists, setShoppingLists] = useState([]);
-  const [archivedLists, setArchivedLists] = useState([]); 
-  // eslint-disable-next-line no-unused-vars
-  const [userRole, setUserRole] = useState("owner");
+  const [archivedLists, setArchivedLists] = useState([]);
+  const [userRole] = useState("owner");
 
   return (
     <div className="App">
@@ -18,11 +18,19 @@ function App() {
         />
         <Route 
           path="/list/:id" 
-          element={<ListDetails shoppingLists={shoppingLists} setShoppingLists={setShoppingLists} archivedLists={archivedLists} setArchivedLists={setArchivedLists} userRole={userRole} />} 
+          element={
+            <ListDetails 
+              shoppingLists={shoppingLists} 
+              setShoppingLists={setShoppingLists} 
+              archivedLists={archivedLists} 
+              setArchivedLists={setArchivedLists} 
+              userRole={userRole} 
+            />
+          } 
         />
       </Routes>
     </div>
   );
 }
 
-export default App;
+export default App; 
